@@ -1,13 +1,14 @@
-import { useState } from 'react';
+
 import './App.css';
-import { Button } from '@/components/Button';
+import InfoDefault from './components/info-default';
 
 function App() {
-  const [count, setCount] = useState(0);
 
   return (
     <>
-      <Button variant="outline" size={"sm"}>Button</Button>
+    <div className='p-2.5'>
+      <InfoDefault />
+    </div>
     </>
   );
 }
