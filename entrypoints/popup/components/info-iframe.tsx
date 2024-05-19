@@ -8,12 +8,19 @@ function InfoIframe() {
   const [iframes, setIframes] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
 
+  // 绝不会存在 iframe 的页面
+
   // 一个点击事件 发送消息给content-script, 通知content-script获取当前页面的信息
   function onClickAnalysis() {
-    setLoading(true)
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs: { id: any }[]) => {
-      chrome.tabs.sendMessage(tabs[0].id, { action: 'getIframeInfo' })
-    })
+    try {
+      setLoading(true)
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs: { id: any }[]) => {
+        chrome.tabs.sendMessage(tabs[0].id, { action: 'getIframeInfo' })
+      })
+    }
+    catch (error) {
+      console.error('获取 iframe 信息时出错:', error)
+    }
   }
   // 监听来自content-script的消息，获取到iframe信息
   browser.runtime.onMessage.addListener((message: { type: string, iframes: SetStateAction<string[]> }) => {

@@ -1,10 +1,12 @@
 import { browser } from 'wxt/browser'
 import { useCopyToClipboard } from 'usehooks-ts'
 import { useEffect, useState } from 'react'
+import { Copy } from 'lucide-react'
 import URLIcon from './url-icon'
 import InfoIframe from './info-iframe'
 import { Button } from '@/components/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/Card'
+import { Skeleton } from '@/components/Skeleton'
 
 interface InfoPage {
   title: string
@@ -12,11 +14,13 @@ interface InfoPage {
   urlNoQuery: string
   urlMainSite: string
   urlMainSiteTitle: string
+  isLocal?: boolean
 }
 function InfoDefault() {
   const [infoPage, setInfoPage] = useState<InfoPage>({ title: '', urlFull: '', urlNoQuery: '', urlMainSite: '', urlMainSiteTitle: '' })
   const [_copiedText, copy] = useCopyToClipboard()
   const [_copiedStatus, setCopiedStatus] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   async function fetchTitle(url: string): Promise<string> {
     try {
@@ -32,19 +36,44 @@ function InfoDefault() {
     }
   }
   async function init() {
-    const activeTab = (await browser.tabs.query({ active: true, currentWindow: true }))[0]
-    const urlFull = decodeURIComponent(activeTab.url || '')
-    const urlNoQuery = urlFull.split('?')[0]
-    const urlMainSite = `${urlFull.split('//')[0]}//${urlFull.split('//')[1].split('/')[0]}`
+    try {
+      setLoading(true)
+      const activeTab = (await browser.tabs.query({ active: true, currentWindow: true }))[0]
+      const urlFull = decodeURIComponent(activeTab.url || '')
+      // 是否为本地页面
+      const isLocal = /^(?:file|chrome-extension|chrome|about|data|blob|javascript|view-source):/.test(urlFull)
 
-    const urlMainSiteTitle = await fetchTitle(urlMainSite)
-    setInfoPage({
-      title: activeTab.title || '',
-      urlFull,
-      urlNoQuery,
-      urlMainSite,
-      urlMainSiteTitle,
-    })
+      if (['chrome://newtab/', 'about:blank'].includes(urlFull)) {
+        setInfoPage({
+          title: 'New Tab',
+          urlFull,
+          urlNoQuery: '',
+          urlMainSite: '',
+          urlMainSiteTitle: '',
+          isLocal,
+        })
+        return
+      }
+
+      const urlNoQuery = urlFull.split('?')[0]
+      const urlMainSite = `${urlFull.split('//')[0]}//${urlFull.split('//')[1].split('/')[0]}`
+
+      const urlMainSiteTitle = await fetchTitle(urlMainSite)
+      setInfoPage({
+        title: activeTab.title || '',
+        urlFull,
+        urlNoQuery,
+        urlMainSite,
+        urlMainSiteTitle,
+        isLocal,
+      })
+    }
+    catch (error) {
+      console.error('[ error ]-54', error)
+    }
+    finally {
+      setLoading(false)
+    }
   }
   async function copyUrl(content: string) {
     try {
@@ -63,32 +92,73 @@ function InfoDefault() {
     <>
       <Card className="w-full h-full">
         <CardHeader className="flex justify-start flex-row items-center">
-          <URLIcon className="w-4 h-4 rounded" url={infoPage.urlFull} />
-          <span className="ml-1.5">
-            {infoPage.urlMainSiteTitle}
-            {' '}
-            |
-            {' '}
-            {infoPage.urlMainSite}
-          </span>
+          {loading
+
+            ? (
+              <>
+                <Skeleton className="h-4 w-4 rounded" />
+
+                <Skeleton className="h-4 w-full ml-1.5" />
+              </>
+              )
+
+            : (
+              <>
+                { infoPage.isLocal
+                  ? (
+                    <>
+                      This is a local page.
+                    </>
+                    )
+                  : (
+                    <>
+                      <URLIcon className="w-4 h-4 rounded" url={infoPage.urlFull} />
+                      <span className="ml-1.5">
+                        {infoPage.urlMainSiteTitle}
+                        {' '}
+                        |
+                        {' '}
+                        <Button
+                          variant="link"
+                          size="link"
+                          onClick={() =>
+                          // open the main site in a new tab
+                            browser.tabs.create({ url: infoPage.urlMainSite })}
+                        >
+                          {infoPage.urlMainSite}
+                        </Button>
+
+                      </span>
+                    </>
+                    )}
+              </>
+              )}
         </CardHeader>
         <CardContent>
 
           <div className="text-nowrap flex justify-between items-center py-0.5">
-            {infoPage.title || 'No title'}
-            <Button className="ml-2.5 war" variant="secondary" size="sm" onClick={() => copyUrl(`${infoPage.title}`)}>
-              Copy
+            <div className="w-full">
+              {loading ? <Skeleton className="h-4 " /> : (infoPage.title || 'No title')}
+            </div>
+            <Button className="ml-2.5 war" variant="ghost" size="icon" onClick={() => copyUrl(`${infoPage.title}`)}>
+              <Copy className="w-4 h-4" />
             </Button>
           </div>
           <div className="text-nowrap flex justify-between items-center py-0.5">
-            {infoPage.urlNoQuery || 'No url'}
-            <Button className="ml-2.5" variant="secondary" size="sm" onClick={() => copyUrl(`${infoPage.urlFull}`)}>
-              Copy
+            <div className="w-full">
+              {loading ? <Skeleton className="h-4 " /> : (infoPage.urlNoQuery || 'No url')}
+            </div>
+            <Button className="ml-2.5" variant="ghost" size="icon" onClick={() => copyUrl(`${infoPage.urlFull}`)}>
+              <Copy className="w-4 h-4" />
             </Button>
           </div>
-          <Button variant="secondary" size="sm" onClick={() => copyUrl(`${infoPage.title}\n${infoPage.urlFull}`)}>
-            Copy full
-          </Button>
+          <div className="mt-1.5">
+            <Button className="" variant="ghost" size="sm" onClick={() => copyUrl(`${infoPage.title}\n${infoPage.urlFull}`)}>
+              <Copy className="w-4 h-4 mr-1" />
+              {' '}
+              Full
+            </Button>
+          </div>
           <InfoIframe />
         </CardContent>
       </Card>
