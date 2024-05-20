@@ -1,12 +1,11 @@
-import { useEffect } from 'react'
 import './App.css'
-import InfoDefault from './components/info-default'
+import Layout from './components/layout'
 
 function App() {
   return (
     <>
       <div className="p-1">
-        <InfoDefault />
+        <Layout />
       </div>
     </>
   )

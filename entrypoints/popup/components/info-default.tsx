@@ -3,21 +3,15 @@ import { useCopyToClipboard } from 'usehooks-ts'
 import { useEffect, useState } from 'react'
 import { Copy } from 'lucide-react'
 import URLIcon from './url-icon'
-import InfoIframe from './info-iframe'
+
 import { Button } from '@/components/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/Card'
 import { Skeleton } from '@/components/Skeleton'
+import { useStoreInfoDefault } from '@/store/info-default'
 
-interface InfoPage {
-  title: string
-  urlFull: string
-  urlNoQuery: string
-  urlMainSite: string
-  urlMainSiteTitle: string
-  isLocal?: boolean
-}
 function InfoDefault() {
-  const [infoPage, setInfoPage] = useState<InfoPage>({ title: '', urlFull: '', urlNoQuery: '', urlMainSite: '', urlMainSiteTitle: '' })
+  const { setData: setStoreInfoDefault } = useStoreInfoDefault()
+  const [infoPage, setInfoPage] = useState<InfoDefault>({ title: '', urlFull: '', urlNoQuery: '', urlMainSite: '', urlMainSiteTitle: '' })
   const [_copiedText, copy] = useCopyToClipboard()
   const [_copiedStatus, setCopiedStatus] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -42,31 +36,41 @@ function InfoDefault() {
       const urlFull = decodeURIComponent(activeTab.url || '')
       // 是否为本地页面
       const isLocal = /^(?:file|chrome-extension|chrome|about|data|blob|javascript|view-source):/.test(urlFull)
-
+      let newTab: InfoDefault = {
+        title: '',
+        urlFull: '',
+        urlNoQuery: '',
+        urlMainSite: '',
+        urlMainSiteTitle: '',
+        isLocal,
+      }
       if (['chrome://newtab/', 'about:blank'].includes(urlFull)) {
-        setInfoPage({
+        newTab = {
           title: 'New Tab',
           urlFull,
           urlNoQuery: '',
           urlMainSite: '',
           urlMainSiteTitle: '',
           isLocal,
-        })
-        return
+
+        }
       }
+      else {
+        const urlNoQuery = urlFull.split('?')[0]
+        const urlMainSite = `${urlFull.split('//')[0]}//${urlFull.split('//')[1].split('/')[0]}`
 
-      const urlNoQuery = urlFull.split('?')[0]
-      const urlMainSite = `${urlFull.split('//')[0]}//${urlFull.split('//')[1].split('/')[0]}`
-
-      const urlMainSiteTitle = await fetchTitle(urlMainSite)
-      setInfoPage({
-        title: activeTab.title || '',
-        urlFull,
-        urlNoQuery,
-        urlMainSite,
-        urlMainSiteTitle,
-        isLocal,
-      })
+        const urlMainSiteTitle = await fetchTitle(urlMainSite)
+        newTab = {
+          title: activeTab.title || '',
+          urlFull,
+          urlNoQuery,
+          urlMainSite,
+          urlMainSiteTitle,
+          isLocal,
+        }
+      }
+      setInfoPage(newTab)
+      setStoreInfoDefault(newTab)
     }
     catch (error) {
       console.error('[ error ]-54', error)
@@ -159,7 +163,7 @@ function InfoDefault() {
               Full
             </Button>
           </div>
-          <InfoIframe />
+
         </CardContent>
       </Card>
 

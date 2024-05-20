@@ -3,10 +3,12 @@ import { useEffect, useState } from 'react'
 import { Button } from '@/components/Button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/Card'
 import { Skeleton } from '@/components/Skeleton'
+import { useStoreInfoDefault } from '@/store/info-default'
 
 function InfoIframe() {
   const [iframes, setIframes] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
+  const { data: infoDefault } = useStoreInfoDefault()
 
   // 绝不会存在 iframe 的页面
 
@@ -38,7 +40,9 @@ function InfoIframe() {
       <Card className="w-full h-full mt-2">
         <CardHeader className="flex justify-between flex-row items-center">
           <div>
-            <CardTitle className="text-lg">iframe</CardTitle>
+            <CardTitle className="text-lg">
+              iframe
+            </CardTitle>
             <CardDescription>
               Get all iframe elements on the current page
             </CardDescription>
@@ -53,8 +57,6 @@ function InfoIframe() {
               ? (
                 <>
                   <div className="space-y-2">
-                    <Skeleton className="h-4" />
-                    <Skeleton className="h-4" />
                     <Skeleton className="h-4" />
                     <Skeleton className="h-4" />
                     <Skeleton className="h-4" />

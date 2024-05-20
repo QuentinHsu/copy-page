@@ -7,6 +7,6 @@ export default defineConfig({
     plugins: [react()],
   }),
   manifest: {
-    permissions: ['storage', 'activeTab', 'tabs'],
+    permissions: ['activeTab', 'tabs'],
   },
 })
