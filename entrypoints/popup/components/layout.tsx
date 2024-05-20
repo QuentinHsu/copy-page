@@ -7,7 +7,10 @@ function Layout() {
   return (
     <>
       <InfoDefault />
-      {infoDefault.isLocal ? null : <InfoIframe />}
+      {infoDefault.urlFull === ''
+        ? null
+        : infoDefault.isLocal ? null : <InfoIframe />}
+
     </>
   )
 }

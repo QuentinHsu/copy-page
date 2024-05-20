@@ -94,7 +94,7 @@ function InfoDefault() {
   }, [])
   return (
     <>
-      <Card className="w-full h-full">
+      <Card className="w-full h-full break-all">
         <CardHeader className="flex justify-start flex-row items-center">
           {loading
 
@@ -118,10 +118,16 @@ function InfoDefault() {
                     <>
                       <URLIcon className="w-4 h-4 rounded" url={infoPage.urlFull} />
                       <span className="ml-1.5">
-                        {infoPage.urlMainSiteTitle}
-                        {' '}
-                        |
-                        {' '}
+                        {infoPage.urlMainSiteTitle
+                          ? (
+                            <>
+                              {infoPage.urlMainSiteTitle}
+                              {' '}
+                              |
+                              {' '}
+                            </>
+                            )
+                          : null}
                         <Button
                           variant="link"
                           size="link"
@@ -150,7 +156,14 @@ function InfoDefault() {
           </div>
           <div className="text-nowrap flex justify-between items-center py-0.5">
             <div className="w-full">
-              {loading ? <Skeleton className="h-4 " /> : (infoPage.urlNoQuery || 'No url')}
+              {loading
+                ? <Skeleton className="h-4 " />
+                : (
+                  <span className="inline-block max-w-sm text-wrap">
+
+                    {infoPage.urlNoQuery || 'No url'}
+                  </span>
+                  )}
             </div>
             <Button className="ml-2.5" variant="ghost" size="icon" onClick={() => copyUrl(`${infoPage.urlFull}`)}>
               <Copy className="w-4 h-4" />
