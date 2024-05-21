@@ -5,13 +5,14 @@ import { Copy } from 'lucide-react'
 import URLIcon from './url-icon'
 
 import { Button } from '@/components/Button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/Card'
+import { Card, CardContent, CardHeader } from '@/components/Card'
 import { Skeleton } from '@/components/Skeleton'
 import { useStoreInfoDefault } from '@/store/info-default'
+import { decodeURIComponentRecursive } from '@/lib/utils'
 
 function InfoDefault() {
   const { setData: setStoreInfoDefault } = useStoreInfoDefault()
-  const [infoPage, setInfoPage] = useState<InfoDefault>({ title: '', urlFull: '', urlNoQuery: '', urlMainSite: '', urlMainSiteTitle: '' })
+  const [infoPage, setInfoPage] = useState<IInfoDefault>({ title: '', urlFull: '', urlNoQuery: '', urlMainSite: '', urlMainSiteTitle: '' })
   const [_copiedText, copy] = useCopyToClipboard()
   const [_copiedStatus, setCopiedStatus] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -33,10 +34,11 @@ function InfoDefault() {
     try {
       setLoading(true)
       const activeTab = (await browser.tabs.query({ active: true, currentWindow: true }))[0]
-      const urlFull = decodeURIComponent(activeTab.url || '')
+
+      const urlFull = decodeURIComponentRecursive(activeTab.url || '')
       // 是否为本地页面
       const isLocal = /^(?:file|chrome-extension|chrome|about|data|blob|javascript|view-source):/.test(urlFull)
-      let newTab: InfoDefault = {
+      let newTab: IInfoDefault = {
         title: '',
         urlFull: '',
         urlNoQuery: '',

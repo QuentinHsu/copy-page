@@ -1,9 +1,9 @@
 import { create } from 'zustand'
 
 interface StoreInfoDefault {
-  data: InfoDefault // Assign the correct type to the data property
-  setData: (data: InfoDefault) => void
-  getData: () => InfoDefault
+  data: IInfoDefault // Assign the correct type to the data property
+  setData: (data: IInfoDefault) => void
+  getData: () => IInfoDefault
 }
 
 export const useStoreInfoDefault = create<StoreInfoDefault>((set, get) => ({
@@ -14,7 +14,7 @@ export const useStoreInfoDefault = create<StoreInfoDefault>((set, get) => ({
     urlMainSite: '',
     urlMainSiteTitle: '',
   },
-  setData: (data: InfoDefault) => {
+  setData: (data: IInfoDefault) => {
     set(() => ({ data }))
   },
 

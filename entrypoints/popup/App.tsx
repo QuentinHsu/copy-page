@@ -4,7 +4,7 @@ import Layout from './components/layout'
 function App() {
   return (
     <>
-      <div className="p-1">
+      <div className="p-1 break-all">
         <Layout />
       </div>
     </>
