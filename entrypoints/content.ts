@@ -11,12 +11,32 @@ export default defineContentScript({
       function getIframes(): void {
         setTimeout(() => {
           const iframes = document.querySelectorAll('iframe')
+
           const urls: string[] = []
 
           // 遍历所有的 iframe 元素
+          // 暂时停止监听 DOM 变化
+          observer.disconnect()
           iframes.forEach((iframe) => {
-            // 获取到 iframe 的 src 属性
+            const div = document.createElement('div')
+            div.setAttribute('id', 'copy-page-iframe-tag')
+
+            Object.assign(div.style, {
+              position: 'absolute',
+              top: `${iframe.offsetTop}px`,
+              left: `${iframe.offsetLeft}px`,
+              color: '#fff',
+              // 黑色半透明背景
+              backgroundColor: 'rgba(0, 0, 0, 0.15)',
+              padding: '5px',
+              fontSize: '12px',
+              borderRadius: '5px',
+            })
+
+            div.textContent = decodeURIComponentRecursive(iframe.getAttribute('src') || '')
+            iframe.parentNode?.insertBefore(div, iframe)
             const src = iframe.getAttribute('src')
+
             if (src)
               urls.push(decodeURIComponentRecursive(src))
           })
@@ -24,7 +44,8 @@ export default defineContentScript({
           // 向浏览器扩展后台发送消息，包含所有 iframe 的 src
           const postMessageData = <IContent['message']>{ action: postMessage.action, data: urls }
           browser.runtime.sendMessage(postMessageData)
-        }, 1000)
+          observer.observe(document.body, { childList: true, subtree: true })
+        }, 2000)
       }
 
       // 立即获取所有的 iframe
@@ -49,6 +70,7 @@ export default defineContentScript({
       // 监听名为 stopObserving 的消息
       if (message.action === 'stopListeningIframe')
         observer.disconnect()
+      document.querySelectorAll('#copy-page-iframe-tag').forEach(tag => tag.remove())
     })
   },
 })
