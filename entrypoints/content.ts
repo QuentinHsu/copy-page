@@ -18,23 +18,7 @@ export default defineContentScript({
           // 暂时停止监听 DOM 变化
           observer.disconnect()
           iframes.forEach((iframe) => {
-            const div = document.createElement('div')
-            div.setAttribute('id', 'copy-page-iframe-tag')
-
-            Object.assign(div.style, {
-              position: 'absolute',
-              top: `${iframe.offsetTop}px`,
-              left: `${iframe.offsetLeft}px`,
-              color: '#fff',
-              // 黑色半透明背景
-              backgroundColor: 'rgba(0, 0, 0, 0.15)',
-              padding: '5px',
-              fontSize: '12px',
-              borderRadius: '5px',
-            })
-
-            div.textContent = decodeURIComponentRecursive(iframe.getAttribute('src') || '')
-            iframe.parentNode?.insertBefore(div, iframe)
+            setIframeTag(iframe)
             const src = iframe.getAttribute('src')
 
             if (src)
@@ -70,7 +54,27 @@ export default defineContentScript({
       // 监听名为 stopObserving 的消息
       if (message.action === 'stopListeningIframe')
         observer.disconnect()
-      document.querySelectorAll('#copy-page-iframe-tag').forEach(tag => tag.remove())
+      // document.querySelectorAll('#copy-page-iframe-tag').forEach(tag => tag.remove())
     })
   },
 })
+function setIframeTag(iframe: HTMLIFrameElement) {
+  const div = document.createElement('div')
+  div.setAttribute('id', 'copy-page-iframe-tag')
+
+  Object.assign(div.style, {
+    position: 'absolute',
+    top: `${iframe.offsetTop}px`,
+    left: `${iframe.offsetLeft}px`,
+    color: '#fff',
+    backgroundColor: 'rgba(0, 0, 0, 0.15)',
+    padding: '5px',
+    fontSize: '12px',
+    borderRadius: '5px',
+  })
+
+  div.textContent = decodeURIComponentRecursive(iframe.getAttribute('src') || '')
+
+  if (iframe.parentNode && !iframe.parentNode.querySelector('#copy-page-iframe-tag'))
+    iframe.parentNode.insertBefore(div, iframe)
+}
