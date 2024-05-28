@@ -12,21 +12,21 @@ export default defineContentScript({
         setTimeout(() => {
           const iframes = document.querySelectorAll('iframe')
 
-          const urls: string[] = []
-
           // 遍历所有的 iframe 元素
           // 暂时停止监听 DOM 变化
           observer.disconnect()
+          const newDataIframes: IIframe[] = []
           iframes.forEach((iframe) => {
             setIframeTag(iframe)
-            const src = iframe.getAttribute('src')
+            const title = iframe.getAttribute('title') || ''
+            const src = decodeURIComponentRecursive(iframe.getAttribute('src') || '')
 
             if (src)
-              urls.push(decodeURIComponentRecursive(src))
+              newDataIframes.push({ title, url: src, urlMainSite: '', urlMainSiteTitle: '' })
           })
 
           // 向浏览器扩展后台发送消息，包含所有 iframe 的 src
-          const postMessageData = <IContent['message']>{ action: postMessage.action, data: urls }
+          const postMessageData = <IContent['message']>{ action: postMessage.action, data: newDataIframes }
           browser.runtime.sendMessage(postMessageData)
           observer.observe(document.body, { childList: true, subtree: true })
         }, 2000)

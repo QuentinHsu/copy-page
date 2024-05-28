@@ -8,7 +8,7 @@ import { Skeleton } from '@/components/Skeleton'
 import { Toggle } from '@/components/Toggle'
 
 function InfoIframe() {
-  const [iframes, setIframes] = useState<string[]>([])
+  const [iframes, setIframes] = useState<IIframe[]>([])
   const [loading, setLoading] = useState(false)
   const [showContent, setShowContent] = useState(false)
   // 解析 iframe 信息的监听状态
@@ -80,6 +80,7 @@ function InfoIframe() {
               {!listening ? <CirclePause className="h-4" /> : <Activity className="animate-ping h-2" />}
 
             </Toggle>
+
             <Button size="sm" variant="secondary" onClick={onClickAnalysis} disabled={loading}>
               Analysis
             </Button>
@@ -102,7 +103,9 @@ function InfoIframe() {
                         </>
                         )
                       : iframes.map((iframe, index) => (
-                        <div className="text-justify" key={index}>{(iframe)}</div>
+                        <div className="text-justify" key={index}>
+                          <CardIframe {...iframe} index={index} />
+                        </div>
                       ))
                   }
                 </CardContent>
@@ -115,3 +118,37 @@ function InfoIframe() {
   )
 }
 export default InfoIframe
+
+/**
+ *
+ * @param info - iframe 信息
+ * @returns iframe 卡片
+ */
+function CardIframe(info: IIframe & { index: number }): JSX.Element {
+  return (
+    <Card className="w-full h-full mt-2 bg-grid-white/[0.2] relative">
+      <div className="absolute top-2 left-3">
+        {info.index + 1}
+      </div>
+      <CardHeader>
+        <div>
+          <CardTitle className="text-lg">
+            {info.title}
+          </CardTitle>
+          <CardDescription>
+            {info.url}
+          </CardDescription>
+        </div>
+        <div className="flex items-center">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => browser.tabs.create({ url: info.url })}
+          >
+            Open
+          </Button>
+        </div>
+      </CardHeader>
+    </Card>
+  )
+}

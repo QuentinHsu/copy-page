@@ -26,7 +26,7 @@ function InfoDefault() {
       return doc.title
     }
     catch (error) {
-      console.error('获取网页内容时出错:', error)
+      console.error('获取网页内容时出错：', error)
       return ''
     }
   }
