@@ -1,4 +1,3 @@
-import type { SetStateAction } from 'react'
 import { useEffect, useState } from 'react'
 import { Activity, CirclePause } from 'lucide-react'
 import type { Tabs } from 'wxt/browser'
@@ -78,9 +77,7 @@ function InfoIframe() {
           <div className="flex items-center">
             <Toggle size="icon" onPressedChange={onChangeToggle} className="mr-1" pressed={listening}>
               {!listening ? <CirclePause className="h-4" /> : <Activity className="animate-ping h-2" />}
-
             </Toggle>
-
             <Button size="sm" variant="secondary" onClick={onClickAnalysis} disabled={loading}>
               Analysis
             </Button>
@@ -102,11 +99,16 @@ function InfoIframe() {
                           </div>
                         </>
                         )
-                      : iframes.map((iframe, index) => (
-                        <div className="text-justify" key={index}>
-                          <CardIframe {...iframe} index={index} />
+                      : (
+                        <div className="text-justify max-h-48 overflow-auto">
+
+                          {iframes.map((iframe, index) => (
+                            <div key={index}>
+                              <CardIframe {...iframe} index={index} />
+                            </div>
+                          ))}
                         </div>
-                      ))
+                        )
                   }
                 </CardContent>
               </>

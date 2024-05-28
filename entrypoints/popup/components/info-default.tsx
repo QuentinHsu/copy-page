@@ -96,10 +96,9 @@ function InfoDefault() {
   }, [])
   return (
     <>
-      <Card className="w-full h-full break-all">
-        <CardHeader className="flex justify-start flex-row items-center">
+      <Card className="w-full h-full break-all ">
+        <CardHeader className="">
           {loading
-
             ? (
               <>
                 <Skeleton className="h-4 w-4 rounded" />
@@ -107,7 +106,6 @@ function InfoDefault() {
                 <Skeleton className="h-4 w-full ml-1.5" />
               </>
               )
-
             : (
               <>
                 { infoPage.isLocal
@@ -117,7 +115,7 @@ function InfoDefault() {
                     </>
                     )
                   : (
-                    <>
+                    <div className="flex justify-start flex-row items-center ">
                       <URLIcon className="w-4 h-4 rounded" url={infoPage.urlFull} />
                       <span className="ml-1.5">
                         {infoPage.urlMainSiteTitle
@@ -134,52 +132,49 @@ function InfoDefault() {
                           variant="link"
                           size="link"
                           onClick={() =>
-                          // open the main site in a new tab
                             browser.tabs.create({ url: infoPage.urlMainSite })}
                         >
                           {infoPage.urlMainSite}
                         </Button>
 
                       </span>
-                    </>
+                    </div>
                     )}
+                <div>
+                  <div className="flex justify-between items-center py-0.5 ">
+                    <div className="w-full">
+                      {loading ? <Skeleton className="h-4 " /> : (infoPage.title || 'No title')}
+                    </div>
+                    <Button className="ml-2.5" variant="ghost" size="icon" onClick={() => copyUrl(`${infoPage.title}`)}>
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="break-all flex justify-between items-center py-0.5 ">
+                    <div className="w-full">
+                      {loading
+                        ? <Skeleton className="h-4 " />
+                        : (
+                          <span className="">
+                            {infoPage.urlNoQuery || 'No url'}
+                          </span>
+                          )}
+                    </div>
+                    <Button className="ml-2.5" variant="ghost" size="icon" onClick={() => copyUrl(`${infoPage.urlFull}`)}>
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="mt-1.5">
+                    <Button className="" variant="ghost" size="sm" onClick={() => copyUrl(`${infoPage.title}\n${infoPage.urlFull}`)}>
+                      <Copy className="w-4 h-4 mr-1" />
+                      {' '}
+                      Full
+                    </Button>
+                  </div>
+                </div>
               </>
               )}
         </CardHeader>
-        <CardContent>
 
-          <div className="text-nowrap flex justify-between items-center py-0.5">
-            <div className="w-full">
-              {loading ? <Skeleton className="h-4 " /> : (infoPage.title || 'No title')}
-            </div>
-            <Button className="ml-2.5 war" variant="ghost" size="icon" onClick={() => copyUrl(`${infoPage.title}`)}>
-              <Copy className="w-4 h-4" />
-            </Button>
-          </div>
-          <div className="text-nowrap flex justify-between items-center py-0.5">
-            <div className="w-full">
-              {loading
-                ? <Skeleton className="h-4 " />
-                : (
-                  <span className="inline-block max-w-sm text-wrap">
-
-                    {infoPage.urlNoQuery || 'No url'}
-                  </span>
-                  )}
-            </div>
-            <Button className="ml-2.5" variant="ghost" size="icon" onClick={() => copyUrl(`${infoPage.urlFull}`)}>
-              <Copy className="w-4 h-4" />
-            </Button>
-          </div>
-          <div className="mt-1.5">
-            <Button className="" variant="ghost" size="sm" onClick={() => copyUrl(`${infoPage.title}\n${infoPage.urlFull}`)}>
-              <Copy className="w-4 h-4 mr-1" />
-              {' '}
-              Full
-            </Button>
-          </div>
-
-        </CardContent>
       </Card>
 
     </>

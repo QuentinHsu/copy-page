@@ -3,6 +3,11 @@
   min-width: 520px;
   margin: 0 auto;
   box-sizing: border-box;
-  transition: width 2s, height 2s;
+  overflow: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
 }
 
