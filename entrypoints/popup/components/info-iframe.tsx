@@ -12,6 +12,8 @@ function InfoIframe() {
   const [showContent, setShowContent] = useState(false)
   // 解析 iframe 信息的监听状态
   const [listening, setListening] = useState(false)
+  // 是否开启过监听
+  const [hasStartListening, setHasStartListening] = useState(false)
 
   // 取消或激活监听
   /**
@@ -30,6 +32,7 @@ function InfoIframe() {
   // 一个点击事件 发送消息给 content-script, 通知 content-script 获取当前页面的信息
   function onClickAnalysis() {
     try {
+      setHasStartListening(true)
       setShowContent(true)
       setLoading(true)
       stopObserving('startListeningIframe')
@@ -65,56 +68,72 @@ function InfoIframe() {
     <>
 
       <Card className="w-full h-full mt-2">
-        <CardHeader className="flex justify-between flex-row items-center">
-          <div>
+        <CardHeader>
+          <div className="flex justify-between flex-row items-center">
             <CardTitle className="text-lg">
               iframe
+              {
+                iframes.length > 0
+                  ? (
+                    <>
+                      {' '}
+                      <span className="text-sm align-text-top">
+                        {iframes.length}
+                      </span>
+
+                    </>
+                    )
+                  : null
+              }
             </CardTitle>
-            <CardDescription>
-              Get all iframe elements on the current page
-            </CardDescription>
+            <div className="flex items-center">
+              {
+                hasStartListening
+                  ? (
+                    <Toggle size="icon" onPressedChange={onChangeToggle} className="mr-1" pressed={listening}>
+                      {!listening ? <CirclePause className="h-4" /> : <Activity className="animate-ping h-2" />}
+                    </Toggle>
+                    )
+                  : (
+                    <Button size="sm" variant="secondary" onClick={onClickAnalysis} disabled={loading}>
+                      Analysis
+                    </Button>
+                    )
+              }
+
+            </div>
           </div>
-          <div className="flex items-center">
-            <Toggle size="icon" onPressedChange={onChangeToggle} className="mr-1" pressed={listening}>
-              {!listening ? <CirclePause className="h-4" /> : <Activity className="animate-ping h-2" />}
-            </Toggle>
-            <Button size="sm" variant="secondary" onClick={onClickAnalysis} disabled={loading}>
-              Analysis
-            </Button>
-          </div>
-        </CardHeader>
-        {
-          showContent
-            ? (
-              <>
-                <CardContent>
-                  {
-                    loading
-                      ? (
-                        <>
+          <div>
+            {
+              showContent
+                ? (
+                  <div className="mt-2 max-h-48 overflow-auto">
+                    {
+                      loading
+                        ? (
                           <div className="space-y-2">
                             <Skeleton className="h-4" />
                             <Skeleton className="h-4" />
                             <Skeleton className="h-4" />
                           </div>
-                        </>
-                        )
-                      : (
-                        <div className="text-justify max-h-48 overflow-auto">
+                          )
+                        : (
+                          <>
+                            {iframes.map((iframe, index) => (
+                              <div key={index} className="text-justify  mb-2">
+                                <CardIframe {...iframe} index={index} />
+                              </div>
+                            ))}
+                          </>
 
-                          {iframes.map((iframe, index) => (
-                            <div key={index}>
-                              <CardIframe {...iframe} index={index} />
-                            </div>
-                          ))}
-                        </div>
-                        )
-                  }
-                </CardContent>
-              </>
-              )
-            : null
-        }
+                          )
+                      }
+                  </div>
+                  )
+                : null
+            }
+          </div>
+        </CardHeader>
       </Card>
     </>
   )
@@ -128,7 +147,7 @@ export default InfoIframe
  */
 function CardIframe(info: IIframe & { index: number }): JSX.Element {
   return (
-    <Card className="w-full h-full mt-2 bg-grid-white/[0.2] relative">
+    <Card className="w-full h-full bg-grid-white/[0.2] relative">
       <div className="absolute top-2 left-3">
         {info.index + 1}
       </div>
